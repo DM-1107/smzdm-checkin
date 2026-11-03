@@ -1,0 +1,69 @@
+name: SMZDM Daily Check-in
+
+on:
+  schedule:
+    # GitHub Actions 使用 UTC 时间。双保险：脚本幂等，第一槽成功后第二槽只会返回「今日已签」
+    - cron: "30 22 * * *"   # 北京 06:30（主槽，刻意避开整点高峰）
+    - cron: "10 23 * * *"   # 北京 07:10（备用槽，主槽被丢弃时兜底）
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: smzdm-checkin
+  cancel-in-progress: false
+
+jobs:
+  checkin:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install --no-cache-dir requests
+
+      - name: Random delay (0-25 min)
+        # 仅定时触发时打散执行时刻，降低固定时间特征；
+        # 手动触发（验证/补签）立即执行，便于快速反馈
+        if: github.event_name == 'schedule'
+        run: |
+          DELAY=$((RANDOM % 1500))
+          echo "本次随机延时 ${DELAY} 秒"
+          sleep $DELAY
+
+      - name: Run check-in
+        env:
+          SMZDM_COOKIE: ${{ secrets.SMZDM_COOKIE }}
+          PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
+          SMZDM_SK: ${{ secrets.SMZDM_SK }}
+        run: python checkin.py
+
+      - name: Report status
+        if: always()
+        run: |
+          echo "签到任务结束，退出码：${{ job.status }}"
+
+  keepalive:
+    # 每月 1 号向仓库提交一次时间戳，制造活动记录，避免 scheduled workflow 被 60 天不活跃规则停用
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    needs: checkin
+    steps:
+      - uses: actions/checkout@v4
+      - name: touch
+        run: |
+          echo "last_run=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > .keepalive
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .keepalive
+          git diff --staged --quiet || git commit -m "chore: keepalive $(date -u +%Y-%m-%d)"
+          git push
