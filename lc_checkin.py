@@ -32,7 +32,7 @@ def log_gain(row: dict):
     with f.open("a", newline="", encoding="utf-8") as fh:
         w = csv.writer(fh)
         if new:
-            w.writerow(["date", "site", "status", "gain_beans", "voucher_balance", "note"])
+            w.writerow(["date", "site", "status", "gain", "balance", "note"])
         w.writerow([datetime.date.today().isoformat(), "jlc", row.get("status", ""),
                     row.get("gain_beans", 0), row.get("voucher", 0), row.get("note", "")])
 
