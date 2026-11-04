@@ -28,6 +28,19 @@ def sign(ticket: str, uid: str = ""):
         return r.status, json.loads(r.read().decode("utf-8", "replace"))
 
 
+def log_gain(row: dict) -> None:
+    import csv, datetime, pathlib
+    f = pathlib.Path("gains.csv")
+    new = not f.exists()
+    with f.open("a", newline="", encoding="utf-8") as fh:
+        w = csv.writer(fh)
+        if new:
+            w.writerow(["date", "site", "status", "base", "extra", "ctrip_point", "continue_day", "note"])
+        w.writerow([datetime.date.today().isoformat(), "ctrip", row.get("status", ""),
+                    row.get("base", 0), row.get("extra", 0), row.get("ctrip_point", 0),
+                    row.get("continue_day", 0), row.get("note", "")])
+
+
 def main() -> int:
     ticket = os.environ.get("CTRIP_TICKET", "").strip()
     uid = os.environ.get("CTRIP_UID", "").strip()
@@ -46,6 +59,12 @@ def main() -> int:
     msg = str(data.get("message", ""))
     day = data.get("continueDay", "")
     print(f"HTTP {st} | code={code} | {msg} | 连续{day}天")
+    log_gain({"status": "SUCCESS" if code == "0" else "ALREADY",
+              "base": data.get("baseIntegratedPoint", 0),
+              "extra": data.get("extraIntegratedPoint", 0),
+              "ctrip_point": data.get("extraCtripPoint", 0),
+              "continue_day": data.get("continueDay", 0),
+              "note": msg[:40]})
     if code == "0":
         print("✅ 签到成功"); return EXIT_OK
     if "已签" in msg or "重复" in msg:
