@@ -18,6 +18,7 @@ import hashlib
 import os
 import random
 import sys
+import pathlib
 import time
 from datetime import datetime, timedelta, timezone
 
@@ -332,6 +333,22 @@ def main() -> int:
     log("步骤 3/3：执行签到 ...")
     result = do_checkin(cookie, token)
     log(f"  结果：{result.status} — {result.message}")
+
+    # 记账：把当次获得的积分/金币/天数写进 gains.csv
+    try:
+        import csv, datetime
+        d = (result.payload or {}).get("data") or {}
+        f = pathlib.Path("gains.csv")
+        new = not f.exists()
+        with f.open("a", newline="", encoding="utf-8") as fh:
+            w = csv.writer(fh)
+            if new:
+                w.writerow(["date", "site", "status", "point", "gold", "exp", "days", "note"])
+            w.writerow([datetime.date.today().isoformat(), "smzdm", result.status,
+                        d.get("point", 0), d.get("gold", 0), d.get("exp", 0),
+                        d.get("daily_num", 0), result.message[:40]])
+    except Exception as e:
+        log(f"  记账失败（不影响签到）：{e}")
 
     # 通知
     if pushplus_token:
