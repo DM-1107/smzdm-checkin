@@ -1,3 +1,3 @@
-date,site,status,base,extra,ctrip_point,continue_day,note
-2026-11-04,ctrip,ALREADY,0,0,0,0,当日已签到，无法补签
+date,site,status,gain,balance,note
+2026-11-04,ctrip,ALREADY,0,,当日已签到，无法补签
 2026-11-04,jlc,ALREADY,0,2.0,当前用户当天已经签到
