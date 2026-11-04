@@ -35,10 +35,9 @@ def log_gain(row: dict) -> None:
     with f.open("a", newline="", encoding="utf-8") as fh:
         w = csv.writer(fh)
         if new:
-            w.writerow(["date", "site", "status", "base", "extra", "ctrip_point", "continue_day", "note"])
+            w.writerow(["date", "site", "status", "gain", "balance", "note"])
         w.writerow([datetime.date.today().isoformat(), "ctrip", row.get("status", ""),
-                    row.get("base", 0), row.get("extra", 0), row.get("ctrip_point", 0),
-                    row.get("continue_day", 0), row.get("note", "")])
+                    row.get("gain", 0), row.get("balance", ""), row.get("note", "")])
 
 
 def main() -> int:
@@ -59,12 +58,10 @@ def main() -> int:
     msg = str(data.get("message", ""))
     day = data.get("continueDay", "")
     print(f"HTTP {st} | code={code} | {msg} | 连续{day}天")
+    gain = (data.get("baseIntegratedPoint") or 0) + (data.get("extraIntegratedPoint") or 0) + (data.get("extraCtripPoint") or 0)
     log_gain({"status": "SUCCESS" if code == "0" else "ALREADY",
-              "base": data.get("baseIntegratedPoint", 0),
-              "extra": data.get("extraIntegratedPoint", 0),
-              "ctrip_point": data.get("extraCtripPoint", 0),
-              "continue_day": data.get("continueDay", 0),
-              "note": msg[:40]})
+              "gain": gain, "balance": "",
+              "note": f"{msg[:20]} 连续{data.get('continueDay', 0)}天"})
     if code == "0":
         print("✅ 签到成功"); return EXIT_OK
     if "已签" in msg or "重复" in msg:
