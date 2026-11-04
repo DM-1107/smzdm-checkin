@@ -1,0 +1,35 @@
+name: JLC Daily Check-in
+
+on:
+  schedule:
+    - cron: "20 22 * * *"   # 北京 06:20（脚本内再随机 0~8 分钟）
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: jlc-checkin
+  cancel-in-progress: false
+
+jobs:
+  jlc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - name: Run JLC check-in
+        env:
+          JLC_TOKEN: ${{ secrets.JLC_TOKEN }}
+        run: python lc_checkin.py
+      - name: Commit ledger
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add gains.csv 2>/dev/null || true
+          git diff --staged --quiet || git commit -m "ledger: jlc $(date -u +%F)"
+          git push || true
