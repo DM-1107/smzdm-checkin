@@ -49,23 +49,26 @@ def main() -> int:
     except Exception as e:
         print(f"网络异常 {type(e).__name__}: {e}"); return EXIT_NET
     print("签到响应:", json.dumps(signed, ensure_ascii=False)[:200])
-    gain = signed.get("data", {}).get("gainNum", 0)
-    status = signed.get("data", {}).get("status")
+    msg = str(signed.get("message") or "")
+    data = signed.get("data") or {}
+    gain = data.get("gainNum", 0)
+    status = data.get("status")
     voucher = 0
     try:
         assets = call(ASSETS, token)
         voucher = assets.get("data", {}).get("integralVoucher", 0)
     except Exception:
         pass
+    if "已经签到" in msg or "已签" in msg:
+        log_gain({"status": "ALREADY", "gain_beans": 0, "voucher": voucher, "note": msg[:40]})
+        print("ℹ️ 今日已签"); return EXIT_ALREADY
     row = {"status": "SUCCESS" if signed.get("success") else "FAIL",
            "gain_beans": gain, "voucher": voucher,
-           "note": f"status={status}"}
+           "note": f"status={status} {msg[:30]}"}
     log_gain(row)
     if signed.get("success") and status in (0, 1):
         print(f"✅ 签到成功 +{gain} 金豆，打样券余额 ¥{voucher}")
         return EXIT_OK
-    if "重复" in str(signed) or "已签" in str(signed):
-        print("ℹ️ 今日已签"); return EXIT_ALREADY
     print("⚠️ 未识别响应"); return EXIT_UNKNOWN
 
 
