@@ -2,3 +2,4 @@ date,site,status,gain,balance,note
 2026-11-04,ctrip,ALREADY,0,,当日已签到，无法补签
 2026-11-04,jlc,ALREADY,0,2.0,当前用户当天已经签到
 2026-11-05,jlc,SUCCESS,2,4.0,status=1 
+2026-11-05,ctrip,SUCCESS,12,,SUCCESS 连续3天
