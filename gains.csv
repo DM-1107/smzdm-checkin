@@ -7,3 +7,4 @@ date,site,status,gain,balance,note
 2026-11-07,jlc,SUCCESS,2,8.0,status=1 
 2026-11-07,ctrip,SUCCESS,10,,SUCCESS 连续5天
 2026-11-08,jlc,SUCCESS,2,10.0,status=1 
+2026-11-08,ctrip,SUCCESS,12,,SUCCESS 连续6天
