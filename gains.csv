@@ -16,3 +16,4 @@ date,site,status,gain,balance,note
 2026-11-11,ctrip,SUCCESS,4,,SUCCESS 连续2天
 2026-11-12,jlc,FAIL,0,0,status=None 存在签到未领取，请先领取!
 2026-11-12,ctrip,SUCCESS,6,,SUCCESS 连续3天
+2026-11-13,jlc,FAIL,0,12.0,status=None 存在签到未领取，请先领取!
