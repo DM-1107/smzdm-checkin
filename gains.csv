@@ -27,3 +27,4 @@ date,site,status,gain,balance,note
 2026-11-18,jlc,SUCCESS,2,31.0,status=1 
 2026-11-19,jlc,SUCCESS,2,33.0,status=1 
 2026-11-19,ctrip,ALREADY,0,,未满足当前活动参与条件 连续0天
+2026-11-20,jlc,SUCCESS,,33.0,status=1 
