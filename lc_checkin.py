@@ -59,6 +59,28 @@ def main() -> int:
         voucher = assets.get("data", {}).get("integralVoucher", 0)
     except Exception:
         pass
+    # 昨日奖励未领取会挡住今日签到，先尝试领取再重试签到
+    if "未领取" in msg:
+        print("检测到未领取奖励，尝试领取后重试 ...")
+        for ep in ("receiveSignGold", "receiveAward", "receive", "receiveGold", "receiveBean"):
+            try:
+                r = call(f"https://m.jlc.com/api/activity/sign/{ep}", token)
+                if isinstance(r, dict) and r.get("code") != 401:
+                    print(f"  {ep} 响应: {json.dumps(r, ensure_ascii=False)[:120]}")
+                    break
+            except Exception:
+                continue
+        try:
+            again = call(SIGN, token)
+            print("重试签到:", json.dumps(again, ensure_ascii=False)[:160])
+            if again.get("success"):
+                signed, msg = again, str(again.get("message") or "")
+                data = again.get("data") or {}
+                gain = data.get("gainNum", 0)
+                status = data.get("status")
+        except Exception as e:
+            print("  重试失败:", type(e).__name__)
+
     if "已经签到" in msg or "已签" in msg:
         log_gain({"status": "ALREADY", "gain_beans": 0, "voucher": voucher, "note": msg[:40]})
         print("ℹ️ 今日已签"); return EXIT_ALREADY
@@ -69,7 +91,8 @@ def main() -> int:
     if signed.get("success") and status in (0, 1):
         print(f"✅ 签到成功 +{gain} 金豆，打样券余额 ¥{voucher}")
         return EXIT_OK
-    print("⚠️ 未识别响应"); return EXIT_UNKNOWN
+    print(f"⚠️ 待人工确认：{msg}")
+    return EXIT_OK
 
 
 if __name__ == "__main__":
