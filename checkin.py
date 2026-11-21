@@ -291,6 +291,12 @@ def main() -> int:
     log("步骤 1/3：校验登录态 ...")
     info = fetch_user_info(cookie)
     if info.get("valid") is False:
+        # 网页个人中心已上反爬（返回壳页含"登录"字样），改用 token 接口复核
+        probe, _payload = get_token(cookie)
+        if probe:
+            log("  ✓ 校验页面误判，token 接口可用，继续签到")
+            info = {"valid": True}
+    if info.get("valid") is False:
         msg = info.get("error", "Cookie 已失效")
         log(f"  ✗ {msg}")
         if pushplus_token:
