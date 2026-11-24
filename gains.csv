@@ -35,3 +35,4 @@ date,site,status,gain,balance,note
 2026-11-23,jlc,FAIL,0,33.0,status=None 存在签到未领取，请先领取!
 2026-11-23,ctrip,ALREADY,0,,未满足当前活动参与条件 连续0天
 2026-11-24,jlc,SUCCESS,2,43.0,status=1 
+2026-11-24,ctrip,ALREADY,0,,未满足当前活动参与条件 连续0天
