@@ -17,7 +17,7 @@ concurrency:
 jobs:
   checkin:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
 
     steps:
       - name: Checkout
@@ -36,7 +36,7 @@ jobs:
         # 手动触发（验证/补签）立即执行，便于快速反馈
         if: github.event_name == 'schedule'
         run: |
-          DELAY=$((RANDOM % 1500))
+          DELAY=$((RANDOM % 300))   # 0~5 分钟，必须远小于 job 超时
           echo "本次随机延时 ${DELAY} 秒"
           sleep $DELAY
 
