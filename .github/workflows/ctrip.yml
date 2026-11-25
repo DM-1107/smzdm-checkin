@@ -1,8 +1,10 @@
 name: Ctrip Daily Check-in
 
 on:
-  schedule:
-    - cron: "40 22 * * *"   # 北京 06:40（脚本内再随机 0~10 分钟）
+  # 携程会员签到活动已关闭（signToday 持续返回 404002 未满足当前活动参与条件），
+  # 已停用定时触发，避免每天发失败邮件。活动若恢复，取消下面注释即可。
+  # schedule:
+  #   - cron: "40 22 * * *"
   workflow_dispatch: {}
 
 permissions:
