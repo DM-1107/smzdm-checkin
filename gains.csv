@@ -41,3 +41,4 @@ date,site,status,gain,balance,note
 2026-11-26,jlc,SUCCESS,6,51.0,status=1 
 2026-11-26,jlc,ALREADY,0,51.0,当前用户当天已经签到
 2026-11-27,jlc,SUCCESS,2,53.0,status=1 
+2026-11-27,jlc,ALREADY,0,53.0,当前用户当天已经签到
